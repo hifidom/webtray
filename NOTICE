@@ -1,0 +1,8 @@
+WebTray
+Copyright 2026 Dieter Steinwedel
+
+This product includes software developed by the
+WebTray project contributors.
+
+It uses PySide6 / Qt / QtWebEngine (Chromium), which are licensed
+separately by The Qt Company and respective upstream projects.

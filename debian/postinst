@@ -1,0 +1,81 @@
+#!/bin/sh
+# Enable autostart for all regular users at install time: write the per-user
+# XDG entry ~/.config/autostart/webtray.desktop, honored by Cinnamon, GNOME,
+# KDE and XFCE alike (the system-wide /etc/xdg/autostart location is ignored
+# by Cinnamon and shows up as "disabled" in its autostart GUI). Entries the
+# user disabled are left alone; users created later get the entry on the
+# app's first start, and WebTray re-asserts it on every start.
+set -e
+
+case "$1" in
+    configure)
+        min=1000
+        if [ -f /etc/login.defs ]; then
+            m=$(sed -n 's/^UID_MIN[[:space:]]\{1,\}\([0-9]\{1,\}\)/\1/p' /etc/login.defs | head -1)
+            [ -n "$m" ] && min="$m"
+        fi
+        for home in /home/*; do
+            [ -d "$home" ] || continue
+            user=$(basename "$home")
+            id -u "$user" >/dev/null 2>&1 || continue
+            uid=$(id -u "$user")
+            [ "$uid" -ge "$min" ] && [ "$uid" -lt 60000 ] || continue
+            entry="$home/.config/autostart/webtray.desktop"
+            if [ -f "$entry" ] &&
+               grep -qiE '^[[:space:]]*(Hidden=true|X-GNOME-Autostart-enabled=false)' "$entry"
+            then
+                continue
+            fi
+            mkdir -p "$home/.config/autostart"
+            cat > "$entry" <<'EOF'
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=WebTray
+GenericName=Web Application Tray Launcher
+Comment=Open web applications from the system tray
+Exec=/usr/bin/webtray
+Icon=webtray
+Terminal=false
+Categories=Network;WebBrowser;Utility;
+StartupNotify=false
+X-GNOME-Autostart-enabled=true
+EOF
+            chown "$user:$(id -gn "$user")" "$home/.config/autostart" "$entry"
+        done
+
+        # Start WebTray right away in the active graphical session (no logout
+        # needed). Best effort — failures never break the installation; the
+        # app is single-instance: a running one is activated, not doubled.
+        (
+            sess=$(loginctl list-sessions 2>/dev/null |
+                   awk 'NR > 1 && $4 ~ /^seat/ {print $1; exit}')
+            user=$(loginctl list-sessions 2>/dev/null |
+                   awk 'NR > 1 && $4 ~ /^seat/ {print $3; exit}')
+            [ -n "$sess" ] && [ -n "$user" ] || exit 0
+            [ "$(loginctl show-session "$sess" -p Active --value 2>/dev/null)" = yes ] || exit 0
+            stype=$(loginctl show-session "$sess" -p Type --value 2>/dev/null)
+            case "$stype" in x11 | wayland) : ;; *) exit 0 ;; esac
+            display=$(loginctl show-session "$sess" -p Display --value 2>/dev/null)
+            [ -n "$display" ] || display=":0"
+            home=$(getent passwd "$user" | cut -d: -f6)
+            [ -n "$home" ] || exit 0
+            uid=$(id -u "$user")
+            rt="/run/user/$uid"
+            [ -d "$rt" ] || exit 0
+            xauth="$home/.Xauthority"
+            [ -f "$xauth" ] || xauth=$(ls -1 "$rt"/.mutter-Xwaylandauth.* 2>/dev/null | head -1)
+            [ "$stype" = wayland ] || [ -f "$xauth" ] || exit 0
+            command -v runuser >/dev/null 2>&1 || exit 0
+            runuser -u "$user" -- env -i HOME="$home" USER="$user" LOGNAME="$user" \
+                PATH=/usr/local/bin:/usr/bin:/bin DISPLAY="$display" XAUTHORITY="$xauth" \
+                XDG_RUNTIME_DIR="$rt" XDG_SESSION_TYPE="$stype" \
+                DBUS_SESSION_BUS_ADDRESS="unix:path=$rt/bus" \
+                setsid -f /usr/bin/webtray >/dev/null 2>&1
+        ) || true
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

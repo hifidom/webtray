@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+# Copyright 2026 Dieter Steinwedel
+# SPDX-License-Identifier: Apache-2.0
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# hicolor layout: icons were installed flat as <size>x<size>.png into
+# usr/share/icons/hicolor/ — move each into <size>x<size>/apps/webtray.png
+# and add the SVG as scalable/apps/webtray.svg
+override_dh_install:
+	dh_install
+	cd debian/webtray/usr/share/icons/hicolor \
+		&& for f in [0-9]*x[0-9]*.png; do \
+			size=$${f%.png}; \
+			mkdir -p $$size/apps; \
+			mv $$f $$size/apps/webtray.png; \
+		done
+	mkdir -p debian/webtray/usr/share/icons/hicolor/scalable/apps
+	cp assets/logo.svg debian/webtray/usr/share/icons/hicolor/scalable/apps/webtray.svg
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild

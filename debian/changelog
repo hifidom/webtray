@@ -1,0 +1,14 @@
+webtray (1.0.0) trixie; urgency=medium
+
+  * Initial release:
+    - one tray icon per configured URL, each with the site's favicon;
+      clicking opens/hides the page in a shared QtWebEngine window
+    - drop-in URL files watched in ~/.config/webtray/urls
+    - optional custom icon and custom title per URL (tray menu)
+    - context menu at the panel edge below the icon, HiDPI-correct
+    - crisp tray icons on HiDPI panels (native pixels on X11)
+    - per-URL geometry, zoom and last page remembered; system UI font
+    - autostart via ~/.config/autostart, enabled by default
+    - single instance, configuration dialog, about dialog
+
+ -- Dieter Steinwedel <deb@hifidom.com>  Mon, 16 Nov 2026 16:15:00 +0100

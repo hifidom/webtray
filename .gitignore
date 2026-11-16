@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling caches
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
+
+# Debian build artifacts
+pkg-out/
+.pybuild/
+debian/files
+debian/.debhelper/
+debian/webtray/
+debian/tmp/
+debian/*.substvars
+debian/*.debhelper
+debian/*.debhelper.log
+debian/debhelper-build-stamp
+obj-*/
+*.deb
+*.dsc
+*.tar.xz
+*.buildinfo
+*.changes
+
+# Signing keys & secrets — never commit private keys
+*.asc
+*.gpg
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+.gnupg/
+.env
+secrets/

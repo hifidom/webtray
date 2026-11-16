@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=WebTray
+GenericName=Web Application Tray Launcher
+Comment=Open web applications from the system tray
+Exec=webtray
+Icon=webtray
+Terminal=false
+Categories=Network;WebBrowser;Utility;
+StartupNotify=false
+X-GNOME-Autostart-enabled=true

@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "webtray"
+dynamic = ["version"]
+description = "System tray launcher for web applications — one page per tray icon"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [
+  { name = "Dieter Steinwedel" },
+]
+keywords = ["tray", "system-tray", "browser", "webapp", "qt", "pyside6", "linux"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: X11 Applications :: Qt",
+  "Intended Audience :: End Users/Desktop",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Internet :: WWW/HTTP :: Browsers",
+  "Topic :: Utilities",
+]
+dependencies = ["PySide6>=6.5"]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.5"]
+
+[project.urls]
+Homepage = "https://github.com/hifidom/webtray"
+Issues = "https://github.com/hifidom/webtray/issues"
+Changelog = "https://github.com/hifidom/webtray/blob/main/CHANGELOG.md"
+
+[project.scripts]
+webtray = "webtray.app:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "webtray.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+webtray = ["icons/*.png"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]

@@ -1,0 +1,11 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: webtray
+Upstream-Contact: Dieter Steinwedel <deb@hifidom.com>
+Source: https://github.com/hifidom/webtray
+
+Files: *
+Copyright: 2026 Dieter Steinwedel
+License: Apache-2.0
+Comment: The complete text of the Apache-2.0 license is shipped in the
+ project's LICENSE file and on Debian systems in
+ /usr/share/common-licenses/Apache-2.0.

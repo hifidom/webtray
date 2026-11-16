@@ -1,0 +1,2 @@
+assets/webtray.desktop usr/share/applications/
+src/webtray/icons/*.png usr/share/icons/hicolor/

@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff
+      - run: ruff check src
+
+  import-smoke:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Qt runtime dependencies (headless)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgl1 libegl1 libnss3 libdbus-1-3 libglib2.0-0 libfontconfig1 \
+            libxkbcommon0 libxkbcommon-x11-0 libx11-xcb1 libxcb-cursor0
+      - name: Install package
+        run: pip install .
+      - name: Compile all sources
+        run: python -m compileall -q src
+      - name: Import smoke test (headless)
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: >
+          python -c "import webtray, webtray.app,
+          webtray.config, webtray.about, webtray.favicons;
+          print('imports OK, version', webtray.__version__)"
+      - name: Shortcut runtime smoke test (headless)
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: >
+          python -c "import sys;
+          from PySide6.QtWidgets import QApplication, QWidget;
+          app = QApplication(sys.argv);
+          from webtray.app import setup_shortcuts;
+          setup_shortcuts(QWidget());
+          print('shortcuts OK')"
+
+  deb-build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:22        # Debian-based with git, for the checkout action
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends \
+            debhelper dpkg-dev dh-python pybuild-plugin-pyproject \
+            python3-all python3-setuptools python3-pip python3-wheel \
+            fakeroot ca-certificates
+      - name: Build .deb (unsigned)
+        run: dpkg-buildpackage -us -uc -b
+      - name: Collect artifacts
+        run: |
+          mkdir -p pkg-out
+          mv ../*.deb ../*.buildinfo ../*.changes pkg-out/
+          chown -R "$(id -u):$(id -g)" pkg-out
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webtray-deb
+          path: pkg-out/*

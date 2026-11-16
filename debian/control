@@ -1,0 +1,35 @@
+Source: webtray
+Section: web
+Priority: optional
+Maintainer: Dieter Steinwedel <deb@hifidom.com>
+Build-Depends: debhelper-compat (= 13),
+               dh-python,
+               pybuild-plugin-pyproject,
+               python3-all,
+               python3-pip,
+               python3-setuptools,
+               python3-wheel
+Standards-Version: 4.7.0
+Rules-Requires-Root: no
+
+Package: webtray
+Architecture: all
+Depends: ${misc:Depends},
+ ${python3:Depends},
+ python3-pyside6.qtcore,
+ python3-pyside6.qtgui,
+ python3-pyside6.qtnetwork,
+ python3-pyside6.qtwidgets,
+ python3-pyside6.qtwebenginecore,
+ python3-pyside6.qtwebenginewidgets,
+ python3-xlib
+Recommends: libxcb-cursor0,
+ qt6-svg-plugins
+Description: tray launcher for web applications — one page per tray icon
+ WebTray keeps your web apps in the system tray: every configured URL gets
+ its own icon with the site's favicon. Clicking the icon opens the page in
+ a lightweight QtWebEngine window; clicking again hides it.
+ .
+ Logins survive restarts (persistent QtWebEngine profile), window geometry
+ and zoom are remembered per page, and a crashed renderer reloads the page
+ automatically.

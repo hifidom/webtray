@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Weltkugel mittig, Pfeil-Dreieck bündig unten links (Spitze nach unten links).
+  Monochrom: eine dunkle Zeichenfarbe + weißer Außenrand (Halo),
+  damit das Icon auf hellen und dunklen Hintergründen lesbar bleibt.
+  Zwischen den Halos bleibt eine Linienbreite (2.5) frei.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <clipPath id="globe-clip">
+      <circle cx="32" cy="32" r="24.5"/>
+    </clipPath>
+  </defs>
+
+  <!-- Halo (heller Außenrand) -->
+  <g fill="#ffffff" stroke="#ffffff" stroke-width="6" stroke-linejoin="round">
+    <circle cx="32" cy="32" r="24.5"/>
+    <path d="M3 61 L3 50 L14 61 Z"/>
+  </g>
+
+  <!-- Weltkugel -->
+  <g clip-path="url(#globe-clip)" fill="none" stroke="#1a1a1a" stroke-width="2">
+    <ellipse cx="32" cy="32" rx="10" ry="24.5"/>
+    <line x1="32" y1="2" x2="32" y2="62"/>
+    <line x1="2" y1="32" x2="62" y2="32"/>
+    <line x1="2" y1="19.75" x2="62" y2="19.75"/>
+    <line x1="2" y1="44.25" x2="62" y2="44.25"/>
+  </g>
+  <circle cx="32" cy="32" r="24.5" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+
+  <!-- Pfeil-Dreieck, Spitze unten links -->
+  <path d="M3 61 L3 50 L14 61 Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="2.5" stroke-linejoin="round"/>
+</svg>
