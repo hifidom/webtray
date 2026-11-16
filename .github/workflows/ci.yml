@@ -76,6 +76,9 @@ jobs:
             debhelper dpkg-dev dh-python pybuild-plugin-pyproject \
             python3-all python3-setuptools python3-pip python3-wheel \
             fakeroot ca-certificates
+          # pybuild builds without isolation, so the system setuptools must
+          # support PEP 639 (SPDX license + license-files) => setuptools>=77
+          python3 -m pip install -q --break-system-packages "setuptools>=77"
       - name: Build .deb (unsigned)
         run: dpkg-buildpackage -us -uc -b
       - name: Collect artifacts
