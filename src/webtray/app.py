@@ -20,7 +20,6 @@ import shutil
 import subprocess
 import sys
 import time
-from urllib.parse import urlparse
 
 import shiboken6
 from PySide6.QtCore import (

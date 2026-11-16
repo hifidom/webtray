@@ -17,11 +17,18 @@ jobs:
       - run: ruff check src
 
   import-smoke:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.12", "3.13"]
+        os: ["ubuntu-latest"]
+        exclude:
+          - python-version: "3.9"
+            os: "ubuntu-latest"   # setup-python has no 3.9 builds for this image
+        include:
+          - python-version: "3.9"
+            os: "ubuntu-24.04"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -65,6 +72,7 @@ jobs:
         run: |
           apt-get update -qq
           apt-get install -y -qq --no-install-recommends \
+            build-essential \
             debhelper dpkg-dev dh-python pybuild-plugin-pyproject \
             python3-all python3-setuptools python3-pip python3-wheel \
             fakeroot ca-certificates
