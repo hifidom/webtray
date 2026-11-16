@@ -78,7 +78,8 @@ jobs:
             fakeroot ca-certificates
           # pybuild builds without isolation, so the system setuptools must
           # support PEP 639 (SPDX license + license-files) => setuptools>=77
-          python3 -m pip install -q --break-system-packages "setuptools>=77"
+          # and packaging>=24.2 (provides packaging.licenses for SPDX)
+          python3 -m pip install -q --break-system-packages "setuptools>=77" "packaging>=24.2"
       - name: Build .deb (unsigned)
         run: dpkg-buildpackage -us -uc -b
       - name: Collect artifacts
