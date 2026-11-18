@@ -215,6 +215,50 @@ The desktop entry launches the `webtray` console script, so run it
 from an activated virtual environment, install with `pipx install .`, or
 adjust `Exec=` to your interpreter.
 
+## Troubleshooting
+
+### Tray icon does not appear on X11 (phantom StatusNotifierWatcher)
+
+Observed on Cinnamon systems that also have KDE/Plasma packages installed
+(the `kde-plasma-desktop` metapackage, `plasma-workspace`, or a Plasma-based
+app stack that pulled them in). Qt 6 uses the SNI protocol whenever the
+session bus has a name called `org.kde.StatusNotifierWatcher`, and falls back
+to XEmbed (Cinnamon, MATE, XFCE panels) only when it is absent. Plasma's
+`kded6` loads the kded module `statusnotifierwatcher` (shipped by
+`plasma-workspace`) and claims that name on every desktop — on a non-KDE
+session there is usually no StatusNotifier host behind it, so the icon is
+registered with a watcher that forwards it nowhere, and the panel never sees
+it: a *phantom watcher*. The activation chain at login is typically
+xdg-desktop-portal → `plasma-xdg-desktop-portal-kde` → `plasma-kded6` (both
+are D-Bus-activatable systemd user units).
+
+Diagnosis:
+
+```bash
+# who owns the watcher name?
+busctl --user status org.kde.StatusNotifierWatcher        # PID of kded6
+# is the watcher object there? (phantom: name yes, object no)
+busctl --user tree org.kde.StatusNotifierWatcher          # "No objects discovered"
+# is the panel's XEmbed tray alive?
+python3 -c "from Xlib import display; d=display.Display(); \
+print(hex(d.get_selection_owner(d.intern_atom('_NET_SYSTEM_TRAY_S0')).id))"
+```
+
+Fix on the affected (non-KDE) system — keep the KDE daemon out of the
+session, the panel's tray keeps working and KDE apps are unaffected:
+
+```bash
+systemctl --user mask plasma-kded6.service plasma-xdg-desktop-portal-kde.service
+# log out and in again, then start webtray (or let autostart do it)
+```
+
+(Verified on Linux Mint-style Ubuntu with Cinnamon, Plasma 6.6 / kded6
+6.24, Qt 6.10. The kded-module disable via `~/.config/kded6rc` /
+`~/.config/kded5rc`, group `[Module-statusnotifierwatcher]`,
+`autoload=false` exists in KDE's kded sources, but did **not** stop the name
+claim on this Plasma version — the mask did. Nothing to do for KDE/Plasma
+users: there plasmashell is the watcher's host and the icon shows up.)
+
 ## Development notes
 
 - `src/webtray/app.py` — main application, tray icons, window, shortcuts
